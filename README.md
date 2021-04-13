@@ -1,5 +1,4 @@
-# Team11
+![CodeBae Logo](https://i.imgur.com/IvPQXGI.png)
 
-
-## Skills Matrix
-https://docs.google.com/spreadsheets/d/1sU0kbvRqHSSKTRktEuWFxHJyClEEl6vDVcFcr6dyMOM/edit?usp=sharing
+## Startup Team Assignment
+https://github.com/StanfordCS194/Team11/wiki/Team-Home-Page/
