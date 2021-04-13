@@ -1,0 +1,3 @@
+Hello!
+
+My name is Alex Langshur -- I'm a senior at Stanford studying computer science. Upon graduation, I plan on joining an algorithmic trading firm to pursue my interests in finance. 
