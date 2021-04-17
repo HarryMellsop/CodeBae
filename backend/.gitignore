@@ -1,0 +1,10 @@
+# python
+__pycache__
+.pyc
+
+# virtual environment
+venv
+env
+
+# misc
+.DS_Store
