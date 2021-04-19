@@ -10,17 +10,19 @@ export function activate(context: vscode.ExtensionContext) {
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "codebae" is now active!');
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('codebae.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
+	// TODO: Change this to be whatever message we get from the backend
+	var message = "Hello World from Codebae";
+	
+	// Registering autocomplete item
+	const provider1 = vscode.languages.registerCompletionItemProvider('python', {
+		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken, context: vscode.CompletionContext) {
+			const messageCompletion = new vscode.CompletionItem(message);
 
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from codebae123!');
+			return [
+				messageCompletion
+			];
+		}
 	});
-
-	context.subscriptions.push(disposable);
 }
 
 // this method is called when your extension is deactivated
