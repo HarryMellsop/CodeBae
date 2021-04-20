@@ -1,7 +1,12 @@
+# CodeBae
+
 ![CodeBae Logo](https://i.imgur.com/IvPQXGI.png)
 
 ## Startup Team Assignment
+
+```text
 https://github.com/StanfordCS194/Team11/wiki/Team-Home-Page/
+```
 
 ## Backend Commands
 
@@ -45,6 +50,6 @@ Finally, we will initialize the Flask web server application by using Gunicorn, 
 gunicorn main:app -c conf/gunicorn.conf.py
 ```
 
-### Stop Server 
+### Stop Server
 
 Safely shutting down the web server can be done by simply attaching to the tmux session as illustrated above and entering CTRL+C. Note that the tmux server should not be externally shut down or killed as this will result in the  background Gunicorn workers being orphaned (which can only be cleared out by restarting the instance or manually sending a SIGKILL to the worker PIDs).
