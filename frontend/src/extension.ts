@@ -2,7 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-// this method is called when your extension is activated
+/// this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
@@ -16,10 +16,13 @@ export function activate(context: vscode.ExtensionContext) {
 	// Registering autocomplete item
 	const provider1 = vscode.languages.registerCompletionItemProvider('python', {
 		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken, context: vscode.CompletionContext) {
-			const messageCompletion = new vscode.CompletionItem(message);
+			
+			const messageCompletion = new vscode.CompletionItem("Hello World");
+			const messageCompletion2 = new vscode.CompletionItem("HI Josh");
 
 			return [
-				messageCompletion
+				messageCompletion,
+				messageCompletion2
 			];
 		}
 	});
