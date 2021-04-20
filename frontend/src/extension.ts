@@ -1,5 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
+import axios from 'axios';
 import * as vscode from 'vscode';
 
 /// this method is called when your extension is activated
@@ -19,6 +20,11 @@ export function activate(context: vscode.ExtensionContext) {
 			
 			const messageCompletion = new vscode.CompletionItem("Hello World");
 			const messageCompletion2 = new vscode.CompletionItem("HI Josh");
+
+			//make get req to httpbin which just reflects the data
+			axios.get('https://httpbin.org/').then(response => {
+				console.log(response.data);
+			});
 
 			return [
 				messageCompletion,
