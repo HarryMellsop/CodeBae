@@ -1,5 +1,9 @@
 *
 !frontend
 frontend/*
+!frontend/package.json
+!frontend/package-lock.json
+!frontend/.vscode
+!frontend/README.md
 !frontend/src/
 !.gitignore
