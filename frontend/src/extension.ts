@@ -15,16 +15,17 @@ export function activate(context: vscode.ExtensionContext) {
 	const provider1 = vscode.languages.registerCompletionItemProvider('python', {
 		async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken, context: vscode.CompletionContext) {
 
+			const beforeCursor = document.getText(new vscode.Range(new vscode.Position(0,0), position));
+			const afterCursor = document.getText(new vscode.Range(position, document.lineAt(document.lineCount - 1).range.end));
+			const docText : string = beforeCursor + "<cursor>" + afterCursor;
 			let message : string = "";
 
-			//make get req to httpbin which just reflects the data
-			// TODO: Change this request to ping server
-			await axios.get('https://httpbin.org/get').then(response => {
+			await axios.post('54.193.42.230:8080/predict', {current_file: docText}).then(response => {
 				console.log(response.data);
 				message = response.data;
 			});
 
-			const messageCompletion = new vscode.CompletionItem(message);
+			const messageCompletion = new vscode.CompletionItem("H" + message);
 
 			return [
 				messageCompletion
