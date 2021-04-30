@@ -4,5 +4,6 @@ from flask import jsonify
 
 app = Flask(__name__)
 
+from endpoints import error
 from endpoints import ping
 from endpoints import predict

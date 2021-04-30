@@ -1,5 +1,4 @@
-from main import app
-from flask import jsonify
+import flask
 
 class GenericError(Exception):
     status_code = 400
@@ -15,9 +14,3 @@ class GenericError(Exception):
         rv = dict(self.payload or ())
         rv['message'] = self.message
         return rv
-
-@app.errorhandler(GenericError)
-def handle_invalid_usage(error):
-    response = jsonify(error.to_dict())
-    response.status_code = error.status_code
-    return response

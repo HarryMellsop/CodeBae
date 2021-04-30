@@ -1,7 +1,7 @@
 from flask import request
-from error import GenericError
 from main import app
 from models.trie import TrieModel
+from utils.error import GenericError
 
 @app.route('/predict', methods=['POST'])
 def predict():
