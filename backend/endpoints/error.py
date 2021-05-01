@@ -1,9 +1,11 @@
+from werkzeug.exceptions import HTTPException 
 from flask import jsonify
-from main import app
-from utils.error import GenericError
 
-@app.errorhandler(GenericError)
+from main import app
+
+@app.errorhandler(HTTPException)
 def handle_invalid_usage(error):
-    response = jsonify(error.to_dict())
-    response.status_code = error.status_code
-    return response
+    return {
+        'description': error.description,
+        'code': error.code 
+    }
