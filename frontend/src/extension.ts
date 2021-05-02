@@ -2,9 +2,18 @@ import * as vscode from 'vscode';
 import { URLSearchParams } from 'url';
 import axios from 'axios';
 
+// Reads the current working directory for .py files
+async function readWorkingDirectory() {
+	await vscode.workspace.findFiles('**/*.py').then((fileUris) => {
+		for (let uri of fileUris) {
+			vscode.workspace.openTextDocument(uri).then((doc) => {
+				console.log(doc.getText());
+			});
+		}
+	});
+}
 /// this method is called when the extension is activated
 export function activate(context: vscode.ExtensionContext) {
-
 	console.log('CodeBae is now active!');
 	
 	// Registering autocomplete item
@@ -40,6 +49,7 @@ export function activate(context: vscode.ExtensionContext) {
 					}
 				});
 			const messageCompletion = new vscode.CompletionItem("H" + message);
+
 			return [
 				messageCompletion
 			];
