@@ -1,14 +1,23 @@
 from flask import Flask
 from flask import request
 from flask import jsonify
+from models.trie import TrieModel
+from utils.db import UserDatabase
+from utils.cache import SessionCache
 
-# Define the application logic (all in one file, until we expand functionality and factor later)
-
+# start app
 app = Flask(__name__)
 
-@app.route('/ping')
-def ping_endpoint():
-    return 'pong'
+# init global constants
+USER_SESSION_TTL = 1 * 60 * 60
 
-# import the relevant prediction endpoints
-import prediction
+# init global variables
+model = TrieModel()
+user_db = UserDatabase()
+session_cache = SessionCache(app)
+
+# add endpoints
+from endpoints import error
+from endpoints import ping
+from endpoints import session
+from endpoints import predict
