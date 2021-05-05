@@ -13,7 +13,18 @@
 		"onLanguage:python"
 	],
 	"main": "./out/extension.js",
-	"contributes": {},
+	"contributes": {
+		"configuration": {
+		"title": "CodeBae",
+		"properties": {
+		  "codeBae.apiKey": {
+			"type": "string",
+			"default": "",
+			"description": "The API Key to authenticate you as a CodeBae user"
+		  }
+		}
+	  }
+	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",
