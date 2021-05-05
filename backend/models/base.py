@@ -8,3 +8,7 @@ class BaseModel(abc.ABC):
     @abc.abstractmethod
     def predict(self, file, cursor_index):
         raise NotImplementedError
+
+    @abc.astractmethod
+    def mlePredict(self, file, cursor_index):
+        raise NotImplementedError
