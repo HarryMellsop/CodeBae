@@ -4,6 +4,7 @@ from flask import jsonify
 from models.trie import TrieModel
 from utils.db import UserDatabase
 from utils.cache import SessionCache
+from utils.extract_credentials import extract_aws_credentials
 
 # start app
 app = Flask(__name__)
@@ -13,7 +14,8 @@ USER_SESSION_TTL = 1 * 60 * 60
 
 # init global variables
 model = TrieModel()
-user_db = UserDatabase()
+credentials = extract_aws_credentials()
+user_db = UserDatabase(credentials=credentials)
 session_cache = SessionCache(app)
 
 # add endpoints
