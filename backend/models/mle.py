@@ -1,18 +1,20 @@
 import nltk
+nltk.download('punkt')
 from collections import defaultdict
 from nltk.tokenize import word_tokenize
+from models.base import BaseModel
 
-class mleModel(BaseModel):
+class MLEModel(BaseModel):
     def __init__(self):
         super().__init__(name='mle_model')
 
-    def mlePredict(self, file, cursor_index):
+    def predict(self, file, cursor_index):
         ngramToCount = defaultdict(float)
         wordCount = defaultdict(float)
         vocabSet = set()
 
         #train on words
-        file = open(file)
+        # file = open(file)
         for line in file:
             tokens = nltk.word_tokenize(line)
             for i in range(len(tokens)):
@@ -46,5 +48,8 @@ class mleModel(BaseModel):
         for pair in wordList[:1]:
             returnWords.append(pair[1])
         if len(returnWords) == 0:
-            return ['']
-        return returnWords
+            print('Returning no predictions....')
+            return ''
+        print("PRINTING RETURNWORDS NOW:")
+        print(returnWords)
+        return returnWords[0]
