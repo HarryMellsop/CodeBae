@@ -17,10 +17,11 @@ class S3Bucket():
         self.s3_resource = boto3.resource('s3', aws_access_key_id=credentials['aws_access_key_id'], aws_secret_access_key=credentials['aws_secret_access_key'])
         self.bucket = self.s3_resource.Bucket(bucket_name)
 
-    def save_file(self, user_data, file, file_path):
+    def save_file(self, workspace, user_data, file, file_path):
         user_ID = user_data['id']
         fileobj = io.BytesIO(file.encode()) # binarise the file for upload
 
-        # now we save the file object with the key user_ID + file_path, which means we can easily extract
-        # files relating to a user using key prefix filtering later on
-        self.s3_resource.Object(self.bucket_name, user_ID + "/" + file_path).upload_fileobj(Fileobj=fileobj)
+        # now we save the file object with the key user_ID/workspace/file_path, which means we can easily extract
+        # files relating to a user using key prefix filtering later on, and code from various workspaces
+        # is kept discrete
+        self.s3_resource.Object(self.bucket_name, user_ID + "/" + workspace + "/" + file_path).upload_fileobj(Fileobj=fileobj)
