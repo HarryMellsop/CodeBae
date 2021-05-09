@@ -2,6 +2,7 @@ from flask import Flask
 from flask import request
 from flask import jsonify
 from models.trie import TrieModel
+from models.mle import MLEModel
 from utils.db import UserDatabase
 from utils.cache import SessionCache
 
