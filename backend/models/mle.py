@@ -12,16 +12,14 @@ class mleModel(BaseModel):
         vocabSet = set()
 
         #train on words
-        file = open(file)
-        for line in file:
-            tokens = nltk.word_tokenize(line)
-            for i in range(len(tokens)):
-                currentWord = tokens[i]
-                if i != len(tokens)-1:
-                    ngram = (currentWord, tokens[i+1])
-                    ngramToCount[ngram] += 1
-                wordCount[currentWord] += 1
-                vocabSet.add(currentWord)
+        tokens = nltk.word_tokenize(line)
+        for i in range(len(tokens)):
+            currentWord = tokens[i]
+            if i != len(tokens)-1:
+                ngram = (currentWord, tokens[i+1])
+                ngramToCount[ngram] += 1
+            wordCount[currentWord] += 1
+            vocabSet.add(currentWord)
         #get previous word
         prefix = file[0:cursor_index:]
         prefix = prefix[::-1]
@@ -44,7 +42,7 @@ class mleModel(BaseModel):
         wordList.sort(reverse=True)
         returnWords = []
         for pair in wordList[:1]:
-            returnWords.append(pair[1])
+            returnWords.append(' ' + pair[1])
         if len(returnWords) == 0:
             return ['']
         return returnWords
