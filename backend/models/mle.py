@@ -14,7 +14,6 @@ class MLEModel(BaseModel):
         vocabSet = set()
 
         #train on words
-<<<<<<< HEAD
         tokens = nltk.word_tokenize(line)
         for i in range(len(tokens)):
             currentWord = tokens[i]
@@ -23,18 +22,7 @@ class MLEModel(BaseModel):
                 ngramToCount[ngram] += 1
             wordCount[currentWord] += 1
             vocabSet.add(currentWord)
-=======
-        # file = open(file)
-        for line in file:
-            tokens = nltk.word_tokenize(line)
-            for i in range(len(tokens)):
-                currentWord = tokens[i]
-                if i != len(tokens)-1:
-                    ngram = (currentWord, tokens[i+1])
-                    ngramToCount[ngram] += 1
-                wordCount[currentWord] += 1
-                vocabSet.add(currentWord)
->>>>>>> 45979496571a94307904dace84792dbe46fc5292
+
         #get previous word
         prefix = file[0:cursor_index:]
         prefix = prefix[::-1]
