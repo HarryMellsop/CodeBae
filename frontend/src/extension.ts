@@ -24,6 +24,8 @@ async function readWorkingDirectory() {
 export function activate(context: vscode.ExtensionContext) {
 	console.log('CodeBae is now active!');
 
+
+
 	authenticateSession();
 
 	context.subscriptions.push(vscode.commands.registerCommand('codeBae.authenticate', authenticateSession));
@@ -59,7 +61,7 @@ function registerPredictor() {
 						if (response.data.code === 403) {
 							sessionID = '';
 							authenticateSession();
-							// TO-DO: Need to
+							// TO-DO: Maybe we need to retry the suggestions after this? Might end in a recursive loop though...
 						} else {
 							message = response.data;	
 						}
@@ -79,7 +81,6 @@ function registerPredictor() {
 				} else {
 					return [];
 				}
-					
 			}
 		}
 	});
