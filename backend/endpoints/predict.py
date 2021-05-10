@@ -1,4 +1,4 @@
-from flask import request
+from flask import request, jsonify
 from utils.error import GenericError
 
 from main import app
@@ -28,4 +28,5 @@ def predict():
     if index == -1:
         raise GenericError('Error: Parameter \'current_file\' does not contain <cursor>', 400)
 
-    return model.predict(data['current_file'], index)
+    predictions = model.predict(data['current_file'], index)
+    return jsonify({'predictions' : predictions})
