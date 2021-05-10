@@ -44,7 +44,7 @@ class MLEModel(BaseModel):
         #return most likely word(s)
         wordList.sort(reverse=True)
         returnWords = []
-        for pair in wordList[:1]:
+        for pair in wordList[:3]:
             returnWords.append(' ' + pair[1])
         if len(returnWords) == 0:
             print('Returning no predictions....')
