@@ -14,7 +14,7 @@ class MLEModel(BaseModel):
         vocabSet = set()
 
         #train on words
-        tokens = nltk.word_tokenize(line)
+        tokens = nltk.word_tokenize(file)
         for i in range(len(tokens)):
             currentWord = tokens[i]
             if i != len(tokens)-1:

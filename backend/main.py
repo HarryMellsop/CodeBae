@@ -13,7 +13,7 @@ app = Flask(__name__)
 USER_SESSION_TTL = 1 * 60 * 60
 
 # init global variables
-model = TrieModel()
+model = MLEModel()
 user_db = UserDatabase()
 session_cache = SessionCache(app)
 
