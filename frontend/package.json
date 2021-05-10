@@ -20,10 +20,16 @@
 		  "codeBae.apiKey": {
 			"type": "string",
 			"default": "",
-			"description": "The API Key to authenticate you as a CodeBae user"
+			"description": "The API Key to authenticate you as a CodeBae user. After entering the key, please run the CodeBae: Authenticate command"
 		  }
 		}
-	  }
+	  },
+	  "commands": [
+		  {
+			  "command": "codeBae.authenticate",
+			  "title": "CodeBae: Authenticate user session"
+		  }
+	  ]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
