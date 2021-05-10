@@ -9,24 +9,77 @@ let sessionExpireTime = 3600000;
 var sessionID: string;
 var sessionTimeout: NodeJS.Timeout;
 
-
-// Reads the current working directory for .py files
+// Reads the current working directory for .py files. Returns
+// a JSON object of <string>relative path names to <string>file contents
 async function readWorkingDirectory() {
-	await vscode.workspace.findFiles('**/*.py').then((fileUris) => {
+	let fileDict : {[path: string]: string} = {};
+	let workspacePath : string = "";
+	if (vscode.workspace.workspaceFolders !== undefined) {
+		workspacePath = vscode.workspace.workspaceFolders[0].uri.path;
+	} else {
+		console.log("No workspace found.");
+		return {};
+	}
+	await vscode.workspace.findFiles('**/*.py').then(async (fileUris) => {
 		for (let uri of fileUris) {
-			vscode.workspace.openTextDocument(uri).then((doc) => {
-				console.log(doc.getText());
+			await vscode.workspace.openTextDocument(uri).then((doc) => {
+				let relativePath = uri.path.substr(workspacePath.length+1);
+				let docText = doc.getText();
+				fileDict[relativePath] = docText;
 			});
 		}
 	});
+	return fileDict;
 }
+
+// Reads workspace for .py files and sends them to backend /mass_upload endpoint
+// in a JSON object formatted by [relative path : file contents]
+async function massUpload() {
+	let workspacename : string = vscode.workspace.name === undefined ? "" : vscode.workspace.name;
+	if (workspacename === "") {
+		console.log("No workspace detected.");
+		return;
+	}
+	let files = await readWorkingDirectory();
+	let jsonData: JSON = <JSON><unknown>{
+		'workspace': <string>workspacename,
+		'files': files
+	};
+
+	await axios.post(serverAddr + '/mass_upload', jsonData, {
+		headers: {
+			'Content-Type': 'application/json',
+			'Session-ID': sessionID
+		}
+	})
+		.then(response => {
+			if (response.data.code === 403) {
+				sessionID = '';
+				authenticateSession();
+				//TODO: maybe restart mass upload. the recursive loop issue still stands tho
+			} else if (response.data.code >= 400) {
+				console.log(response.data.code + ": " + response.data.description);
+			} else {
+				console.log("Mass upload of files successfully completed.");
+			}
+		})
+		.catch(err => {
+			if (err.response) {
+				console.log('RESPONSE ERR: ' + err.message);
+			} else if (err.request) {
+				console.log('REQUEST ERR: ' + err.message);
+			} else {
+				console.log('ERR: ' + err.message);
+			}
+		});
+}
+
 /// this method is called when the extension is activated
 export function activate(context: vscode.ExtensionContext) {
 	console.log('CodeBae is now active!');
-
-
-
-	authenticateSession();
+	authenticateSession().then(() => {
+		massUpload();
+	});
 
 	context.subscriptions.push(vscode.commands.registerCommand('codeBae.authenticate', authenticateSession));
 
@@ -92,7 +145,8 @@ async function authenticateSession() {
 	await axios.get(serverAddr + '/session', {
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
-			'API-Key': vscode.workspace.getConfiguration('codeBae').get('apiKey')
+			//'API-Key': vscode.workspace.getConfiguration('codeBae').get('apiKey')
+			'API-Key': '452af61abf65866b1b7b815f5306d6dd'
 		}
 	})
 		.then(response => {
