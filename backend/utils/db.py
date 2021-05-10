@@ -3,18 +3,14 @@ import boto3
 
 class UserDatabase():
 
-    def __init__(self,
-                 table_name='user-db',
-                 aws_access_key_id='AKIA35RHPJYZKBJK62BG',
-                 aws_secret_access_key='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',
-                 region_name='us-west-1'):
+    def __init__(self, 
+                 credentials,
+                 table_name='user-db'):
 
         # connect to boto3 session
-        session = boto3.Session(
-            aws_access_key_id=aws_access_key_id,
-            aws_secret_access_key=aws_secret_access_key,
-            region_name=region_name
-        )
+        session = boto3.Session(aws_access_key_id=credentials['aws_access_key_id'],
+                                aws_secret_access_key=credentials['aws_secret_access_key'],
+                                region_name=credentials['region-name'])
 
         # get dynamo resource
         dynamo = session.resource('dynamodb')
