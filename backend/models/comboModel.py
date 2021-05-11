@@ -70,6 +70,8 @@ class comboModel(BaseModel):
             trie = CharTrie()
             for toknum, tokval, _, _, _ in tokenize(BytesIO(file.encode('utf-8')).readline):
                 trie[tokval] = tokval
+            if previousWord in trie.keys():
+                del trie[previousWord]
             try:
                 return list(trie.values(previousWord))[:3]
             except KeyError:
