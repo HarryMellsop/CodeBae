@@ -31,9 +31,7 @@ class TrieModel(BaseModel):
         del trie[prefix]
 
         try:
-            return list(trie.values(prefix))[0]
+            return list(trie.values(prefix))[:3]
         except KeyError:
             # no predictions
-            return ''
-
-        return file
+            return []
