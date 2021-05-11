@@ -7,9 +7,9 @@ from io import BytesIO
 from tokenize import tokenize
 from models.base import BaseModel
 
-class TrieModel(BaseModel):
+class comboModel(BaseModel):
     def __init__(self):
-        super().__init__(name='trie_model')
+        super().__init__(name='combo_model')
 
     def predict(self, file, cursor_index):
         ngramToCount = defaultdict(float)
