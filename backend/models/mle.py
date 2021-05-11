@@ -47,8 +47,5 @@ class MLEModel(BaseModel):
         for pair in wordList[:3]:
             returnWords.append(' ' + pair[1])
         if len(returnWords) == 0:
-            print('Returning no predictions....')
             return ''
-        print("PRINTING RETURNWORDS NOW:")
-        print(returnWords)
-        return returnWords[0]
+        return returnWords
