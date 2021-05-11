@@ -81,8 +81,7 @@ async function authenticateSession() {
 	await axios.get(serverAddr + '/session', {
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
-			//'API-Key': vscode.workspace.getConfiguration('codeBae').get('apiKey')
-			'API-Key': '452af61abf65866b1b7b815f5306d6dd'
+			'API-Key': vscode.workspace.getConfiguration('codeBae').get('apiKey')
 		}
 	})
 		.then(response => {
