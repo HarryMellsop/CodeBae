@@ -44,8 +44,6 @@ class TrieModel(BaseModel):
     def finetune(self, files):
         trie = CharTrie()
 
-        print(files)
-
         # finetune trie on multiple files
         for toknum, tokval, _, _, _ in tokenize(BytesIO(files.encode('utf-8')).readline):
             if tokval == 'utf-8' or toknum == 0: continue
