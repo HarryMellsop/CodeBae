@@ -12,9 +12,10 @@ app = Flask(__name__)
 
 # init global constants
 USER_SESSION_TTL = 1 * 60 * 60
+USER_SESSION_MODEL_TTL = 24 * 60 * 60
 
 # init global variables
-model = TrieModel()
+model_class = TrieModel
 credentials = extract_aws_credentials()
 user_db = UserDatabase(credentials=credentials)
 s3bucket = S3Bucket(credentials=credentials)
