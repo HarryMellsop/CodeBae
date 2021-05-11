@@ -1,0 +1,43 @@
+
+.form-inline {
+    margin-top:20px
+}
+.form-inline h3 {
+    display:inline;
+}
+
+.textentry {
+    display:inline;
+    float:right;
+    text-align:right;
+    margin:0;
+    width:80%;
+}
+
+input:not([type="checkbox"]),
+textarea {
+    display: inline-block;
+    width: calc(94% - 50px);
+    margin:0px;
+    overflow: hidden;
+}
+
+button {
+    display: inline-block;
+    width:50px;
+    margin:0px;
+}
+
+hr {
+    border-color: var(--vscode-input-border);
+}
+
+.main {
+    max-width:500px;
+    margin-top: 30px;
+    margin-left: 20px;
+}
+
+.inner {
+    max-width:500px;
+}

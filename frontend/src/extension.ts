@@ -13,9 +13,21 @@ var sessionTimeout: NodeJS.Timeout;
 /// this method is called when the extension is activated
 export function activate(context: vscode.ExtensionContext) {
 	console.log('CodeBae is now active!');
-	authenticateSession().then(() => {
-		massUpload();
-	});
+	if (vscode.workspace.getConfiguration('codeBae').get('apiKey')) {
+		authenticateSession().then(() => {
+			massUpload();
+		});
+	}
+	
+
+	// Track currently webview panel
+	let currentPanel: vscode.WebviewPanel | undefined = undefined;
+	openPanel(currentPanel, context);
+	 context.subscriptions.push(
+	   vscode.commands.registerCommand('codeBae.openLandingPage', () => {
+			openPanel(currentPanel, context);
+	   })
+	 );
 
 	context.subscriptions.push(vscode.commands.registerCommand('codeBae.authenticate', authenticateSession));
 
@@ -75,20 +87,24 @@ function registerPredictor() {
 	});
 }
 
-async function authenticateSession() {
+async function authenticateSession(apiKey : string | undefined = '') {
 	// Create properly formatted body of POST request
+	if (!apiKey) {
+		apiKey = vscode.workspace.getConfiguration('codeBae').get('apiKey');
+	}
 	let params = new URLSearchParams();
 	await axios.get(serverAddr + '/session', {
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
-			'API-Key': vscode.workspace.getConfiguration('codeBae').get('apiKey')
+			'API-Key': apiKey
 		}
 	})
 		.then(response => {
 
 			if (response.data.code === 403) {
-				vscode.window.showInformationMessage('CodeBae: Your API key is invalid. Please reconfigure it in settings.');
+				vscode.window.showInformationMessage('CodeBae: Your API key is invalid.');
 				console.log(response.data.description);
+				sessionID = "";
 			} else {
 				console.log("Session authenticated. Session ID: " + response.data);
 				sessionID = response.data;				
@@ -177,6 +193,128 @@ async function massUpload() {
 			}
 		});
 }
+
+function openPanel(currentPanel: vscode.WebviewPanel | undefined, context: vscode.ExtensionContext) {
+	if (currentPanel) {
+		// If we already have a panel, show it in the target column
+		
+	  } else {
+		// Otherwise, create a new panel
+		currentPanel = vscode.window.createWebviewPanel(
+		  'codeBae',
+		  'CodeBae',
+		  vscode.ViewColumn.One,
+		  {
+			  enableScripts: true
+		  }
+		);
+		currentPanel.webview.html = getWebviewContent(currentPanel.webview, context);
+		currentPanel.iconPath = vscode.Uri.joinPath(context.extensionUri, "media", "icon.png");
+
+		currentPanel.onDidChangeViewState(
+			e => {
+				if (currentPanel) {
+					currentPanel.webview.postMessage({ command: 'loadAPIKey', text: vscode.workspace.getConfiguration('codeBae').get('apiKey') });
+				}
+				
+			},
+			null,
+			context.subscriptions
+		);
+
+		currentPanel.webview.onDidReceiveMessage(
+		  message => {
+			switch (message.command) {
+			  case 'saveAPIKey':
+				  vscode.workspace.getConfiguration('codeBae').update('apiKey', message.text, true);
+				  authenticateSession(message.text).then(() => {
+					if (sessionID) {
+						vscode.window.showInformationMessage("CodeBae: API Key successfully authenticated!");
+						massUpload();
+					}
+				});
+
+				return;
+			}
+		  },
+		  undefined,
+		  context.subscriptions
+		);
+
+		// Reset when the current panel is closed
+		currentPanel.onDidDispose(
+		  () => {
+			currentPanel = undefined;
+		  },
+		  null,
+		  context.subscriptions
+		);
+	  }
+
+}
+
+function getWebviewContent(webview: vscode.Webview, context: vscode.ExtensionContext) {
+	const styleMainUri = webview.asWebviewUri(
+		vscode.Uri.joinPath(context.extensionUri, "media", "landingpage.css")
+	  );
+	  const styleVSCodeUri = webview.asWebviewUri(
+		vscode.Uri.joinPath(context.extensionUri, "media", "vscode.css")
+	  );
+	  const logoUri = webview.asWebviewUri(
+		vscode.Uri.joinPath(context.extensionUri, "media", "logo.png")
+	  );
+	  const iconUri = webview.asWebviewUri(
+		vscode.Uri.joinPath(context.extensionUri, "media", "icon.png")
+	  );
+	return `<!DOCTYPE html>
+  <html lang="en">
+  <head>
+	  <meta charset="UTF-8">
+	  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	  <title>Code Bae</title>
+	  <link href="${styleVSCodeUri}" rel="stylesheet">
+	  <link href="${styleMainUri}" rel="stylesheet">
+	  <link href="${iconUri}" rel="icon" >
+  </head>
+  <body>
+  <div class="main">
+	  <img src="${logoUri}" width="200" />
+	 <hr> 
+	 <div class="inner">
+		<p>CodeBae provides intelligent auto-complete suggestions based on your existing codebase.
+		To take advantage of CodeBae's features, you need to have a valid API key.
+		<form class="form-inline" action="/action_page.php">
+		<h3>API Key:</h3>
+		<div class="textentry">
+			<input id="api-key" placeholder="Enter API Key"" name="api-key">
+			<button type="button" onclick="saveHandler()">Save</button>
+		</div>
+		</form>
+	  </div>
+	</div>
+	<script>
+		const vscode = acquireVsCodeApi();
+		function saveHandler() {
+			
+			vscode.postMessage({
+				command: 'saveAPIKey',
+				text: document.getElementById("api-key").value
+			})
+		}
+
+		window.addEventListener('message', event => {
+
+            const message = event.data; // The JSON data our extension sent
+
+            switch (message.command) {
+                case 'loadAPIKey':
+					document.getElementById("api-key").value = message.text;
+            }
+        });
+    </script>
+	</body>
+  </html>`;
+  }
 
 // this method is called when the extension is deactivated
 export function deactivate() { }
