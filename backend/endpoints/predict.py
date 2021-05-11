@@ -1,22 +1,19 @@
-from flask import request
+from flask import request, jsonify
 from utils.error import GenericError
+from utils.session_validation import validate_session
 
 from main import app
-from main import model
+from main import model_class
+from main import s3bucket
 from main import session_cache
+from main import USER_SESSION_MODEL_TTL
 
 @app.route('/predict', methods=['POST'])
 def predict():
 
-    # check for session id
+    # ensure that the user has a valid session ID
     session_id = request.headers.get('Session-ID')
-    if session_id is None: 
-        raise GenericError('Error: Must provide Session-ID header in request.', 400)
-    
-    # validate session id
-    user_data = session_cache.get(session_id)
-    if user_data is None: 
-        raise GenericError('Error: Invalid session ID.', 403)
+    user_data = validate_session(session_id)
 
     # get input data
     data = request.form
@@ -28,4 +25,23 @@ def predict():
     if index == -1:
         raise GenericError('Error: Parameter \'current_file\' does not contain <cursor>', 400)
 
-    return model.predict(data['current_file'], index)
+    # chech for serialized finetuned model
+    model_serial = session_cache.get(session_id + '.model.ft')
+    if model_serial is None:
+
+        # get user files
+        files = s3bucket.get_files(user_data)
+
+        # finetune model
+        model = model_class()
+        model.finetune(' '.join(files))
+        model_serial = model_class.save(model)
+
+        # save model in session cache
+        session_cache.set(session_id + '.model.ft', model_serial, timeout=USER_SESSION_MODEL_TTL)
+    
+    else:
+        model = model_class.load(model_serial)
+    
+    predictions = model.predict(data['current_file'], index, use_finetune=True)
+    return jsonify({'predictions' : predictions})
