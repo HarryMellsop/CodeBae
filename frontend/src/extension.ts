@@ -283,13 +283,13 @@ function getWebviewContent(webview: vscode.Webview, context: vscode.ExtensionCon
 	 <div class="inner">
 		<p>CodeBae provides intelligent auto-complete suggestions based on your existing codebase.
 		To take advantage of CodeBae's features, you need to have a valid API key.
-		<form class="form-inline" action="/action_page.php">
+		<div class="form-inline" action="/action_page.php">
 		<h3>API Key:</h3>
 		<div class="textentry">
-			<input id="api-key" placeholder="Enter API Key"" name="api-key">
+			<input type="text" id="api-key" placeholder="Enter API Key"" name="api-key">
 			<button type="button" onclick="saveHandler()">Save</button>
 		</div>
-		</form>
+		</div>
 	  </div>
 	</div>
 	<script>
