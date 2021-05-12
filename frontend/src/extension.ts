@@ -14,6 +14,7 @@ var sessionTimeout: NodeJS.Timeout;
 export function activate(context: vscode.ExtensionContext) {
 	console.log('CodeBae is now active!');
 	if (vscode.workspace.getConfiguration('codeBae').get('apiKey')) {
+		console.log("API Key already configured!");
 		authenticateSession().then(() => {
 			massUpload();
 		});
@@ -48,7 +49,7 @@ function registerPredictor() {
 				// Create properly formatted body of POST request
 				let params = new URLSearchParams();
 				params.append('current_file', docText);
-
+				console.log("Sending request for prediction");
 				// Send POST request to backend
 				await axios.post(serverAddr + '/predict', params, {
 					headers: {
@@ -93,6 +94,7 @@ async function authenticateSession(apiKey : string | undefined = '') {
 		apiKey = vscode.workspace.getConfiguration('codeBae').get('apiKey');
 	}
 	let params = new URLSearchParams();
+	console.log("Making request to authenticate...");
 	await axios.get(serverAddr + '/session', {
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
@@ -160,17 +162,23 @@ async function massUpload() {
 		console.log("No workspace detected.");
 		return;
 	}
+
+	console.log("Reading working directory.");
+
 	let files = await readWorkingDirectory();
 	let jsonData: JSON = <JSON><unknown>{
 		'workspace': <string>workspacename,
 		'files': files
 	};
 
+	console.log("Sending post request for mass upload.");
 	await axios.post(serverAddr + '/mass_upload', jsonData, {
 		headers: {
 			'Content-Type': 'application/json',
 			'Session-ID': sessionID
-		}
+		},
+		maxContentLength: Infinity,
+    	maxBodyLength: Infinity
 	})
 		.then(response => {
 			if (response.data.code === 403) {
@@ -180,7 +188,8 @@ async function massUpload() {
 			} else if (response.data.code >= 400) {
 				console.log(response.data.code + ": " + response.data.description);
 			} else {
-				console.log("Mass upload of files successfully completed.");
+				console.log("mass upload successfully completed.");
+				vscode.window.showInformationMessage("Mass upload of files successfully completed.");
 			}
 		})
 		.catch(err => {
@@ -266,6 +275,8 @@ function getWebviewContent(webview: vscode.Webview, context: vscode.ExtensionCon
 	  const iconUri = webview.asWebviewUri(
 		vscode.Uri.joinPath(context.extensionUri, "media", "icon.png")
 	  );
+
+	  let apiKey = vscode.workspace.getConfiguration('codeBae').get('apiKey');
 	return `<!DOCTYPE html>
   <html lang="en">
   <head>
@@ -286,7 +297,7 @@ function getWebviewContent(webview: vscode.Webview, context: vscode.ExtensionCon
 		<div class="form-inline" action="/action_page.php">
 		<h3>API Key:</h3>
 		<div class="textentry">
-			<input type="text" id="api-key" placeholder="Enter API Key"" name="api-key">
+			<input type="text" id="api-key" placeholder="Enter API Key"" name="api-key" value="${apiKey}">
 			<button type="button" onclick="saveHandler()">Save</button>
 		</div>
 		</div>
