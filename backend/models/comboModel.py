@@ -11,7 +11,7 @@ class comboModel(BaseModel):
     def __init__(self):
         super().__init__(name='combo_model')
 
-    def predict(self, file, cursor_index):
+    def predict(self, file, cursor_index, use_finetune=True):
         ngramToCount = defaultdict(float)
         wordCount = defaultdict(float)
         vocabSet = set()
@@ -39,6 +39,10 @@ class comboModel(BaseModel):
 
         #use MLE model
         if useMLE:
+            if use_finetune and self.finetuned:
+                ngramToCount = self.ft_mle
+                vocabSet = self.ft_vocabSet
+                wordCount = self.ft.wordCount
             #train on words
             tokens = nltk.word_tokenize(file)
             for i in range(len(tokens)):
@@ -66,9 +70,13 @@ class comboModel(BaseModel):
             return returnWords
         #Use Trie
         else:
+            if use_finetune and self.finetuned:
+                trie = self.ft_trie
+            else:
+                trie = CharTrie()
             # tokenise the incoming file into individual characters, store these into a trie
-            trie = CharTrie()
             for toknum, tokval, _, _, _ in tokenize(BytesIO(file.encode('utf-8')).readline):
+                if tokval == 'utf-8' or toknum == 0: continue
                 trie[tokval] = tokval
             if previousWord in trie.keys():
                 del trie[previousWord]
@@ -78,3 +86,25 @@ class comboModel(BaseModel):
                 # no predictions
                 return ''
             return file
+
+    def finetune(self, files):
+        trie = CharTrie()
+        # finetune trie on multiple files
+        for toknum, tokval, _, _, _ in tokenize(BytesIO(files.encode('utf-8')).readline):
+            if tokval == 'utf-8' or toknum == 0: continue
+            trie[tokval] = tokval
+        # set finetuned internally
+        self.ft_trie = trie
+
+        tokens = nltk.word_tokenize(files)
+        for i in range(len(tokens)):
+            currentWord = tokens[i]
+            if i != len(tokens)-1:
+                ngram = (currentWord, tokens[i+1])
+                ngramToCount[ngram] += 1
+            wordCount[currentWord] += 1
+            vocabSet.add(currentWord)
+        self.finetuned = True
+        self.ft_ngramToCount = ngramToCount
+        self.ft_wordCount = wordCount
+        self.ft_vocabSet = vocabSet
