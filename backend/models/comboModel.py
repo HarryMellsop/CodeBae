@@ -30,7 +30,7 @@ class comboModel(BaseModel):
         elif not prefix[0].isalpha() and prefix[0] != '_' and prefix[0] != '.':
             prefix = prefix[:1]
             useMLE = True
-         for i in range(len(prefix)):
+        for i in range(len(prefix)):
             if not prefix[i].isalpha() and prefix[i] != '_' and prefix[i] != '(' and prefix[i] != ')':
                 terminating = i
                 break
