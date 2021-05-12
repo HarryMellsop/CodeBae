@@ -40,9 +40,9 @@ class comboModel(BaseModel):
         #use MLE model
         if useMLE:
             if use_finetune and self.finetuned:
-                ngramToCount = self.ft_mle
+                ngramToCount = self.ft_ngramToCount
                 vocabSet = self.ft_vocabSet
-                wordCount = self.ft.wordCount
+                wordCount = self.ft_wordCount
             #train on words
             tokens = nltk.word_tokenize(file)
             for i in range(len(tokens)):
