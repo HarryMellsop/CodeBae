@@ -31,7 +31,7 @@ function registerPredictor() {
 				const beforeCursor = document.getText(new vscode.Range(new vscode.Position(0, 0), position));
 				const afterCursor = document.getText(new vscode.Range(position, document.lineAt(document.lineCount - 1).range.end));
 				const docText: string = beforeCursor + "<cursor>" + afterCursor;
-				let message: string = "";
+				let predictions: string[] = [];
 
 				// Create properly formatted body of POST request
 				let params = new URLSearchParams();
@@ -52,7 +52,7 @@ function registerPredictor() {
 							authenticateSession();
 							// TO-DO: Maybe we need to retry the suggestions after this? Might end in a recursive loop though...
 						} else {
-							message = response.data;	
+							predictions = response.data.predictions;	
 						}
 					})
 					.catch(err => {
@@ -65,11 +65,11 @@ function registerPredictor() {
 						}
 					});
 				
-				if (message) {
-					return [ new vscode.CompletionItem(message) ];
-				} else {
-					return [];
+				let completionItems : vscode.CompletionItem[] = [];
+				for (var prediction in predictions) {
+					completionItems.push(new vscode.CompletionItem(prediction));
 				}
+				return completionItems;
 			}
 		}
 	});
