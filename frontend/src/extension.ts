@@ -14,8 +14,11 @@ var sessionTimeout: NodeJS.Timeout;
 export function activate(context: vscode.ExtensionContext) {
 	console.log('CodeBae is now active!');
 	if (vscode.workspace.getConfiguration('codeBae').get('apiKey')) {
+		console.log("API Key already configured!");
 		authenticateSession().then(() => {
-			massUpload();
+			if (vscode.workspace.getConfiguration('codeBae').get('automaticUpload')) {
+				massUpload();
+			} 
 		});
 	}
 	
@@ -48,7 +51,7 @@ function registerPredictor() {
 				// Create properly formatted body of POST request
 				let params = new URLSearchParams();
 				params.append('current_file', docText);
-
+				console.log("Sending request for prediction");
 				// Send POST request to backend
 				await axios.post(serverAddr + '/predict', params, {
 					headers: {
@@ -93,6 +96,7 @@ async function authenticateSession(apiKey : string | undefined = '') {
 		apiKey = vscode.workspace.getConfiguration('codeBae').get('apiKey');
 	}
 	let params = new URLSearchParams();
+	console.log("Making request to authenticate...");
 	await axios.get(serverAddr + '/session', {
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
@@ -160,17 +164,23 @@ async function massUpload() {
 		console.log("No workspace detected.");
 		return;
 	}
+
+	console.log("Reading working directory.");
+
 	let files = await readWorkingDirectory();
 	let jsonData: JSON = <JSON><unknown>{
 		'workspace': <string>workspacename,
 		'files': files
 	};
 
+	console.log("Sending post request for mass upload.");
 	await axios.post(serverAddr + '/mass_upload', jsonData, {
 		headers: {
 			'Content-Type': 'application/json',
 			'Session-ID': sessionID
-		}
+		},
+		maxContentLength: Infinity,
+    	maxBodyLength: Infinity
 	})
 		.then(response => {
 			if (response.data.code === 403) {
@@ -180,7 +190,8 @@ async function massUpload() {
 			} else if (response.data.code >= 400) {
 				console.log(response.data.code + ": " + response.data.description);
 			} else {
-				console.log("Mass upload of files successfully completed.");
+				console.log("mass upload successfully completed.");
+				vscode.window.showInformationMessage("Mass upload of files successfully completed.");
 			}
 		})
 		.catch(err => {
@@ -215,6 +226,7 @@ function openPanel(currentPanel: vscode.WebviewPanel | undefined, context: vscod
 			e => {
 				if (currentPanel) {
 					currentPanel.webview.postMessage({ command: 'loadAPIKey', text: vscode.workspace.getConfiguration('codeBae').get('apiKey') });
+					currentPanel.webview.postMessage({ command: 'updateAutomaticUpload', text: vscode.workspace.getConfiguration('codeBae').get('automaticUpload') });
 				}
 				
 			},
@@ -230,11 +242,21 @@ function openPanel(currentPanel: vscode.WebviewPanel | undefined, context: vscod
 				  authenticateSession(message.text).then(() => {
 					if (sessionID) {
 						vscode.window.showInformationMessage("CodeBae: API Key successfully authenticated!");
-						massUpload();
 					}
 				});
 
 				return;
+			case 'uploadFiles':
+				if (sessionID) {
+					vscode.window.showInformationMessage("CodeBae: Uploading workspace files...");
+					massUpload().then(() => {
+						vscode.window.showInformationMessage("CodeBae: Done uploading workspace files!");
+					});
+				} else {
+					vscode.window.showErrorMessage("CodeBae: You need to have an authenticated API Key before uploading.");
+				}
+				return;
+
 			}
 		  },
 		  undefined,
@@ -266,6 +288,9 @@ function getWebviewContent(webview: vscode.Webview, context: vscode.ExtensionCon
 	  const iconUri = webview.asWebviewUri(
 		vscode.Uri.joinPath(context.extensionUri, "media", "icon.png")
 	  );
+
+	  let apiKey = vscode.workspace.getConfiguration('codeBae').get('apiKey');
+	  let automaticUploadEnabled = vscode.workspace.getConfiguration('codeBae').get('automaticUpload');
 	return `<!DOCTYPE html>
   <html lang="en">
   <head>
@@ -282,23 +307,39 @@ function getWebviewContent(webview: vscode.Webview, context: vscode.ExtensionCon
 	 <hr> 
 	 <div class="inner">
 		<p>CodeBae provides intelligent auto-complete suggestions based on your existing codebase.
-		To take advantage of CodeBae's features, you need to have a valid API key.
-		<div class="form-inline" action="/action_page.php">
-		<h3>API Key:</h3>
+		</p>
+		<div class="setting">
+		<h3>API Key</h3>
+		<p>The API Key to authenticate you to use CodeBae's features.
 		<div class="textentry">
-			<input type="text" id="api-key" placeholder="Enter API Key"" name="api-key">
-			<button type="button" onclick="saveHandler()">Save</button>
+			<input type="text" id="api-key" placeholder="Enter API Key"" name="api-key" value="${apiKey}">
+			<button class="save" type="button" onclick="saveHandler()">Save</button>
 		</div>
 		</div>
+		<div class="setting">
+		<h3>Model Training</h3>
+		<p>To have CodeBae provide you intelligent suggestions, you will need to upload your workspace files.
+		<button class="train" type="button" onclick="uploadFiles()">Upload Workspace Files</button>
+		</div>
+		<div class="setting">
+		<h3>Automatic Upload</h3>
+		<input type="checkbox" id="automatic"><p class="checkbox-description">Automatically upload workspace files as you work to have CodeBae continuously learn from your coding patterns.
 	  </div>
 	</div>
 	<script>
 		const vscode = acquireVsCodeApi();
+		document.getElementById("automatic").checked = ${automaticUploadEnabled}
 		function saveHandler() {
 			
 			vscode.postMessage({
 				command: 'saveAPIKey',
 				text: document.getElementById("api-key").value
+			})
+		}
+
+		function uploadFiles() {
+			vscode.postMessage({
+				command: 'uploadFiles'
 			})
 		}
 
@@ -309,6 +350,8 @@ function getWebviewContent(webview: vscode.Webview, context: vscode.ExtensionCon
             switch (message.command) {
                 case 'loadAPIKey':
 					document.getElementById("api-key").value = message.text;
+				case 'updateAutomaticUpload':
+					document.getElementById("automatic").checked = message.text
             }
         });
     </script>

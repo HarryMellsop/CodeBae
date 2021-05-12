@@ -2,14 +2,15 @@
 .form-inline {
     margin-top:20px
 }
-.form-inline h3 {
-    display:inline;
+h3{
+    color:whitesmoke;
+}
+h4 {
+    color:whitesmoke;
 }
 
 .textentry {
     display:inline;
-    float:right;
-    text-align:right;
     margin:0;
     width:80%;
 }
@@ -21,12 +22,19 @@ textarea {
     margin:0px;
     overflow: hidden;
 }
+.train {
+    margin-top:10px;
+    display:block;
+    width:300px;
+    max-width:40%;
+}
 
-button {
+.save {
     display: inline-block;
     width:50px;
     margin:0px;
 }
+
 
 hr {
     border-color: var(--vscode-input-border);
@@ -40,4 +48,31 @@ hr {
 
 .inner {
     max-width:500px;
+}
+
+.setting {
+    margin-top:30px;
+}
+
+.setting p {
+    margin-top:0px;
+    vertical-align: baseline;
+    
+}
+
+.setting h3, h4 {
+    margin-bottom:5px;
+}
+
+.setting input[type="checkbox"]{
+    display:inline;
+    margin-left:0px;
+    margin-right:10px;
+    width: 14px;
+    height: 14px;
+    vertical-align: baseline;
+}
+
+.checkbox-description {
+    display:inline;
 }
