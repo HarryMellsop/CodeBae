@@ -78,8 +78,8 @@ function registerPredictor() {
 					});
 				
 				let completionItems : vscode.CompletionItem[] = [];
-				for (var prediction in predictions) {
-					completionItems.push(new vscode.CompletionItem(prediction));
+				for (var index in predictions) {
+					completionItems.push(new vscode.CompletionItem(predictions[index]));
 				}
 				return completionItems;
 			}
