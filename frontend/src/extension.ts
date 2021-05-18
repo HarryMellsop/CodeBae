@@ -3,11 +3,12 @@ import * as vscode from 'vscode';
 import { URLSearchParams } from 'url';
 import axios from 'axios';
 
-let serverAddr: string = 'http://18.116.74.78:8080';
+let serverAddr: string = 'http://3.19.227.195:8080';
 let sessionExpireTime = 3600000;
 
 var sessionID: string;
 var sessionTimeout: NodeJS.Timeout;
+
 
 
 /// this method is called when the extension is activated
@@ -26,11 +27,36 @@ export function activate(context: vscode.ExtensionContext) {
 	// Track currently webview panel
 	let currentPanel: vscode.WebviewPanel | undefined = undefined;
 	openPanel(currentPanel, context);
-	 context.subscriptions.push(
-	   vscode.commands.registerCommand('codeBae.openLandingPage', () => {
+	context.subscriptions.push(
+		vscode.commands.registerCommand('codeBae.openLandingPage', () => {
 			openPanel(currentPanel, context);
-	   })
-	 );
+		})
+	);
+
+	// Mass upload upon save
+	context.subscriptions.push(
+		vscode.workspace.onDidSaveTextDocument((document: vscode.TextDocument) => {
+			if (!vscode.workspace.getConfiguration('codeBae').get('automaticUpload')) {
+				return;
+			}
+			// Check if workspace exists
+			let workspacePath : string = "";
+			if (vscode.workspace.workspaceFolders !== undefined) {
+				workspacePath = vscode.workspace.workspaceFolders[0].uri.path;
+			} else {
+				console.log("Mass file upload upon save: no workspace found, aborting.");
+				return;
+			}
+			// Check if file in workspace
+			if (document.uri.path.startsWith(workspacePath)) {
+				// Call mass upload
+				massUpload();
+			} else {
+				console.log("Mass file upload upon save: saved file not in workspace, aborting.");
+			}
+		})
+	);
+	 
 
 	context.subscriptions.push(vscode.commands.registerCommand('codeBae.authenticate', authenticateSession));
 
@@ -104,7 +130,6 @@ async function authenticateSession(apiKey : string | undefined = '') {
 		}
 	})
 		.then(response => {
-
 			if (response.data.code === 403) {
 				vscode.window.showInformationMessage('CodeBae: Your API key is invalid.');
 				console.log(response.data.description);
@@ -228,36 +253,37 @@ function openPanel(currentPanel: vscode.WebviewPanel | undefined, context: vscod
 					currentPanel.webview.postMessage({ command: 'loadAPIKey', text: vscode.workspace.getConfiguration('codeBae').get('apiKey') });
 					currentPanel.webview.postMessage({ command: 'updateAutomaticUpload', text: vscode.workspace.getConfiguration('codeBae').get('automaticUpload') });
 				}
-				
 			},
 			null,
 			context.subscriptions
 		);
 
 		currentPanel.webview.onDidReceiveMessage(
-		  message => {
-			switch (message.command) {
-			  case 'saveAPIKey':
-				  vscode.workspace.getConfiguration('codeBae').update('apiKey', message.text, true);
-				  authenticateSession(message.text).then(() => {
-					if (sessionID) {
-						vscode.window.showInformationMessage("CodeBae: API Key successfully authenticated!");
-					}
-				});
-
-				return;
-			case 'uploadFiles':
-				if (sessionID) {
-					vscode.window.showInformationMessage("CodeBae: Uploading workspace files...");
-					massUpload().then(() => {
-						vscode.window.showInformationMessage("CodeBae: Done uploading workspace files!");
-					});
-				} else {
-					vscode.window.showErrorMessage("CodeBae: You need to have an authenticated API Key before uploading.");
+		  	message => {
+				switch (message.command) {
+			  		case 'saveAPIKey':
+				  		vscode.workspace.getConfiguration('codeBae').update('apiKey', message.text, true);
+				  		authenticateSession(message.text).then(() => {
+							if (sessionID) {
+								vscode.window.showInformationMessage("CodeBae: API Key successfully authenticated!");
+							}
+						});
+						return;
+					case 'uploadFiles':
+						if (sessionID) {
+							vscode.window.showInformationMessage("CodeBae: Uploading workspace files...");
+							massUpload().then(() => {
+								vscode.window.showInformationMessage("CodeBae: Done uploading workspace files!");
+							});
+						} else {
+							vscode.window.showErrorMessage("CodeBae: You need to have an authenticated API Key before uploading.");
+						}
+						return;
+					case 'onAutoUploadClick':
+	  					let currentAutoUploadToggle : boolean | undefined = vscode.workspace.getConfiguration('codeBae').get('automaticUpload');
+				  		vscode.workspace.getConfiguration('codeBae').update('automaticUpload', !currentAutoUploadToggle);
+						return;
 				}
-				return;
-
-			}
 		  },
 		  undefined,
 		  context.subscriptions
@@ -303,48 +329,53 @@ function getWebviewContent(webview: vscode.Webview, context: vscode.ExtensionCon
   </head>
   <body>
   <div class="main">
-	  <img src="${logoUri}" width="200" />
-	 <hr> 
-	 <div class="inner">
-		<p>CodeBae provides intelligent auto-complete suggestions based on your existing codebase.
-		</p>
+		<img src="${logoUri}" width="200" />
+		<hr> 
+		<div class="inner">
+			<p>
+				CodeBae provides intelligent auto-complete suggestions based on your existing codebase.
+			</p>
 		<div class="setting">
-		<h3>API Key</h3>
-		<p>The API Key to authenticate you to use CodeBae's features.
-		<div class="textentry">
-			<input type="text" id="api-key" placeholder="Enter API Key"" name="api-key" value="${apiKey}">
-			<button class="save" type="button" onclick="saveHandler()">Save</button>
-		</div>
-		</div>
-		<div class="setting">
-		<h3>Model Training</h3>
-		<p>To have CodeBae provide you intelligent suggestions, you will need to upload your workspace files.
-		<button class="train" type="button" onclick="uploadFiles()">Upload Workspace Files</button>
+			<h3>API Key</h3>
+			<p> The API Key to authenticate you to use CodeBae's features. </p>
+			<div class="textentry">
+				<input type="text" id="api-key" placeholder="Enter API Key"" name="api-key" value="${apiKey}">
+				<button class="save" type="button" onclick="saveHandler()">Save</button>
+			</div>
 		</div>
 		<div class="setting">
-		<h3>Automatic Upload</h3>
-		<input type="checkbox" id="automatic"><p class="checkbox-description">Automatically upload workspace files as you work to have CodeBae continuously learn from your coding patterns.
-	  </div>
+			<h3>Model Training</h3>
+			<p>To have CodeBae provide you intelligent suggestions, you will need to upload your workspace files.
+			<button class="train" type="button" onclick="uploadFiles()">Upload Workspace Files</button>
+		</div>
+		<div class="setting">
+			<h3>Automatic Upload</h3>
+			<input type="checkbox" id="automatic" onclick="onAutoUploadClick()">
+				<p class="checkbox-description">Automatically upload workspace files as you work to have CodeBae continuously learn from your coding patterns.</p>
+			</input>
+	  	</div>
 	</div>
 	<script>
 		const vscode = acquireVsCodeApi();
 		document.getElementById("automatic").checked = ${automaticUploadEnabled}
 		function saveHandler() {
-			
 			vscode.postMessage({
 				command: 'saveAPIKey',
 				text: document.getElementById("api-key").value
 			})
 		}
-
 		function uploadFiles() {
 			vscode.postMessage({
 				command: 'uploadFiles'
 			})
 		}
+		function onAutoUploadClick() {
+			vscode.postMessage({
+				command: 'onAutoUploadClick'
+			})
+		}
 
 		window.addEventListener('message', event => {
-
             const message = event.data; // The JSON data our extension sent
 
             switch (message.command) {
