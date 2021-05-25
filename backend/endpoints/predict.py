@@ -1,5 +1,6 @@
 from flask import request, jsonify
 from utils.error import GenericError
+from utils.session_validation import validate_session
 
 from main import app
 from main import model
@@ -8,15 +9,8 @@ from main import session_cache
 @app.route('/predict', methods=['POST'])
 def predict():
 
-    # check for session id
-    session_id = request.headers.get('Session-ID')
-    if session_id is None: 
-        raise GenericError('Error: Must provide Session-ID header in request.', 400)
-    
-    # validate session id
-    user_data = session_cache.get(session_id)
-    if user_data is None: 
-        raise GenericError('Error: Invalid session ID.', 403)
+    # ensure that the user has a valid session ID
+    validate_session(request.headers.get('Session-ID'))
 
     # get input data
     data = request.form
