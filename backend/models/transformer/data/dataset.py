@@ -11,7 +11,7 @@ class Character_Level_Dataset(Dataset):
         print(f"Block Size: {block_size}")
         self.block_size = block_size
         with open(os.path.join(train_data_path, 'file_array.pkl'), 'rb') as file:
-            self.data = pickle.load(file)
+            self.data = pickle.load(file)[::-1]
 
         self.vocab = CharVocab()
         print(f'Data consists of {len(self.vocab.stoi)} unique characters')

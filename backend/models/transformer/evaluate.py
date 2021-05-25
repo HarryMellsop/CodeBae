@@ -4,6 +4,7 @@ from utils import utils
 import questionary
 import os
 import torch
+import argparse
 
 class bcolors:
     HEADER = '\033[95m'
@@ -16,7 +17,8 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-device = torch.cuda.current_device() if torch.cuda.is_available() else 'cpu'
+# device = torch.cuda.current_device() if torch.cuda.is_available() else 'cpu'
+device = 'cpu'
 
 def get_prediction(code_str, gpt_model, stoi, itos, sample=False):
     """
@@ -36,7 +38,7 @@ def get_prediction(code_str, gpt_model, stoi, itos, sample=False):
 
     x = torch.tensor(x, dtype=torch.long)[None,...].to(device)
 
-    pred = utils.sample(gpt_model, x, 10, sample=sample)[0]
+    pred = utils.sample(gpt_model, x, 20, sample=sample)[0]
     return ''.join([itos[int(i)] for i in pred][len(code_str):])
     # TODO: MORE TO COME HERE; JUST WANT TO TEST TO SEE WHAT WE'RE GETTING OUT THE OTHER SIDE
 
@@ -64,8 +66,20 @@ def get_recent_ckpt(ckpt_dir):
     return os.path.join(ckpt_dir, iter_list[0])
 
 if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('--with-params', type=str, help='Parameters to use for evaluation script')
+
+    args = parser.parse_args()
+
     # load the GPT model from the parameters
-    ckpt_path = get_recent_ckpt('./ckpts/training_checkpoints')
+    if args.with_params:
+        print(f'Loading provided parameters from {args.with_params}')
+        ckpt_path = args.with_params
+    else:
+        ckpt_path = get_recent_ckpt('./ckpts/training_checkpoints')
+        print(f'Loading most recent parameters: {ckpt_path}')
     ckpt = torch.load(ckpt_path, map_location=torch.device(device))
     model_config = ckpt['model_config']
     itos = ckpt['itos']

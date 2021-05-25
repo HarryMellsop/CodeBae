@@ -64,6 +64,7 @@ if __name__ == "__main__":
 
     ckpt_dict = None
     if args.resume_from:
+        print(f"Resuming from {args.resume_from}")
         ckpt_dict = torch.load(args.resume_from, map_location=torch.device(device))
 
     main(config_args, train_args, save_dir, data_dir, pretrain_state=ckpt_dict)
