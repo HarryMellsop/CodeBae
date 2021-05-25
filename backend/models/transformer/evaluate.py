@@ -102,5 +102,6 @@ if __name__ == '__main__':
     while True:
         code_str = input(f"Enter some code to autocomplete: ")
         pred = get_prediction(code_str, gpt_model, stoi, itos)
-        print(f"My prediction is: {bcolors.WARNING}{code_str}{bcolors.OKCYAN}{pred}{bcolors.ENDC}")
-        
+        print(f"My prediction is (without sampling): {bcolors.WARNING}{code_str}{bcolors.OKCYAN}{pred}{bcolors.ENDC}")
+        pred = get_prediction(code_str, gpt_model, stoi, itos, sample=True)
+        print(f"My prediction is (with sampling): {bcolors.WARNING}{code_str}{bcolors.OKCYAN}{pred}{bcolors.ENDC}")

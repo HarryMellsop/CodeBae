@@ -1,6 +1,19 @@
 import torch
 import torch.nn as nn
-from model import attention
+
+# needs this weird try/catch setup so that we can use this same model code from the
+# model/transformer directory to do the pretraining etc., and also from the main
+# directory to use in the server
+
+try:
+    from model import attention
+except ModuleNotFoundError:
+    pass
+
+try:
+    import models.transformer.model.attention as attention
+except ModuleNotFoundError:
+    pass
 
 class GPTConfig:
     embed_pdrop = 0.1

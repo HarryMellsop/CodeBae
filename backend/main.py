@@ -13,7 +13,7 @@ app = Flask(__name__)
 USER_SESSION_TTL = 1 * 60 * 60
 
 # init global variables
-model = TrieModel()
+model = TransformerModel(param_path='./models/transformer/ckpts/training_checkpoints/epoch_0_iter_85000.pt')
 user_db = UserDatabase()
 session_cache = SessionCache(app)
 
