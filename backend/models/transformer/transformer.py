@@ -69,3 +69,6 @@ class TransformerModel(BaseModel):
         # what can be predicted here; we can add that later as and when it occurs
 
         return full_prediction
+
+    def finetune(self, files):
+        raise NotImplemented

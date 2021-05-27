@@ -33,8 +33,8 @@ def predict():
         files = s3bucket.get_files(user_data)
 
         # finetune model
-        model = model_class()
-        model.finetune(' '.join(files))
+        model = model_class(param_path='./models/transformer_params.pt')
+        # model.finetune(' '.join(files))
         model_serial = model_class.save(model)
 
         # save model in session cache
@@ -43,5 +43,5 @@ def predict():
     else:
         model = model_class.load(model_serial)
     
-    predictions = model.predict(data['current_file'], index, use_finetune=True)
+    predictions = model.predict(data['current_file'], index)
     return jsonify({'predictions' : predictions})
