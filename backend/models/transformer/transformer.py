@@ -20,6 +20,7 @@ class TransformerModel(BaseModel):
     def __init__(self, param_path):
         super().__init__(name='transformer_model')
         self.device = 'cpu'
+        self.num_predictions = 3
         self.ckpt = torch.load(param_path, map_location=torch.device(self.device))
         model_config = self.ckpt['model_config']
         self.itos = self.ckpt['itos']
@@ -57,14 +58,6 @@ class TransformerModel(BaseModel):
 
         x = torch.tensor(x, dtype=torch.long)[None,...].to(self.device)
 
-        pred = utils.sample(self.gpt_model, x, 20, sample=False)[0]
-        full_prediction = ''.join([self.itos[int(i)] for i in pred][len(preceding_file):])
-
-        # if we predict the EOL; we just want to cut the prediction there
-        EOL_index = full_prediction.find('\n')
-        if EOL_index != -1:
-            full_prediction = full_prediction[:EOL_index]
-
         prefix = file[:cursor_index:][::-1]
         terminating = len(prefix) - 1
         for i in range(len(prefix)):
@@ -75,10 +68,22 @@ class TransformerModel(BaseModel):
         prefix = prefix[:terminating]
         prefix = prefix[::-1]
 
-        # there's probably some other logic that we'll find on how we want to constrain
-        # what can be predicted here; we can add that later as and when it occurs
+        predictions = []
+        for i in range(self.num_predictions):
+            pred = utils.sample(self.gpt_model, x, 20, sample=(False if i == 0 else True))[0]
+            full_prediction = ''.join([self.itos[int(i)] for i in pred][len(preceding_file):])
+            
+            # if we predict the EOL; we just want to cut the prediction there
+            EOL_index = full_prediction.find('\n')
+            if EOL_index != -1:
+                full_prediction = full_prediction[:EOL_index]
 
-        return [prefix + full_prediction]
+            predictions.append(prefix + full_prediction)
+            
+            # there's probably some other logic that we'll find on how we want to constrain
+            # what can be predicted here; we can add that later as and when it occurs
+
+        return [predictions]
 
     def finetune(self, files):
         raise NotImplemented
