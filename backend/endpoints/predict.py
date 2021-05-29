@@ -8,6 +8,8 @@ from main import s3bucket
 from main import session_cache
 from main import USER_SESSION_MODEL_TTL
 
+model = model_class(param_path='./models/transformer_params.pt')
+
 @app.route('/predict', methods=['POST'])
 def predict():
 
@@ -25,23 +27,23 @@ def predict():
     if index == -1:
         raise GenericError('Error: Parameter \'current_file\' does not contain <cursor>', 400)
 
-    # chech for serialized finetuned model
-    model_serial = session_cache.get(session_id + '.model.ft')
-    if model_serial is None:
+    # # chech for serialized finetuned model
+    # model_serial = session_cache.get(session_id + '.model.ft')
+    # if model_serial is None:
 
-        # get user files
-        files = s3bucket.get_files(user_data)
+    #     # get user files
+    #     files = s3bucket.get_files(user_data)
 
-        # finetune model
-        model = model_class()
-        model.finetune(' '.join(files))
-        model_serial = model_class.save(model)
+    #     # finetune model
+    #     model = model_class(param_path='./models/transformer_params.pt')
+    #     # model.finetune(' '.join(files))
+    #     model_serial = model_class.save(model)
 
-        # save model in session cache
-        session_cache.set(session_id + '.model.ft', model_serial, timeout=USER_SESSION_MODEL_TTL)
+    #     # save model in session cache
+    #     session_cache.set(session_id + '.model.ft', model_serial, timeout=USER_SESSION_MODEL_TTL)
     
-    else:
-        model = model_class.load(model_serial)
+    # else:
+    #     model = model_class.load(model_serial)
     
-    predictions = model.predict(data['current_file'], index, use_finetune=True)
+    predictions = model.predict(data['current_file'], index)
     return jsonify({'predictions' : predictions})
