@@ -65,10 +65,20 @@ class TransformerModel(BaseModel):
         if EOL_index != -1:
             full_prediction = full_prediction[:EOL_index]
 
+        prefix = file[:cursor_index:][::-1]
+        terminating = len(prefix) - 1
+        for i in range(len(prefix)):
+            if not prefix[i].isalpha() and prefix[i] != '_':
+                terminating = i
+                break
+
+        prefix = prefix[:terminating]
+        prefix = prefix[::-1]
+
         # there's probably some other logic that we'll find on how we want to constrain
         # what can be predicted here; we can add that later as and when it occurs
 
-        return full_prediction
+        return [prefix + full_prediction]
 
     def finetune(self, files):
         raise NotImplemented
