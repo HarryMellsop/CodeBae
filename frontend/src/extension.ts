@@ -119,10 +119,6 @@ function registerPredictor() {
 					completionItem.insertText = prediction;
 					completionItem.filterText = prediction;
 					completionItem.preselect = index === 0;
-					// completionItem.range = new vscode.Range(
-					// 	position.translate(0, -args.oldPrefix.length),
-					// 	position.translate(0, args.entry.old_suffix.length)
-					// );
 					completionItems.push(completionItem);
 				}
 
