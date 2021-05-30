@@ -108,8 +108,12 @@ function registerPredictor() {
 				
 				let completionItems : vscode.CompletionItem[] = [];
 				for (var index in predictions) {
-					completionItems.push(new vscode.CompletionItem(predictions[index]));
+					let prediction = new vscode.CompletionItem(predictions[index]);
+					prediction.sortText = "" + index;
+					prediction.detail = "CodeBae";
+					completionItems.push(prediction);
 				}
+
 				return completionItems;
 			}
 		}
