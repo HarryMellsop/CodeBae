@@ -4,6 +4,7 @@ from tokenize import tokenize
 from models.base import BaseModel
 
 class TrieModel(BaseModel):
+    finetune_implemented = True
 
     def __init__(self):
         super().__init__(name='trie_model')

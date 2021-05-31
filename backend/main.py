@@ -2,7 +2,7 @@ from flask import Flask
 from flask import request
 from flask import jsonify
 from models.trie import TrieModel
-from models.mle import MLEModel
+from models.transformer.transformer import TransformerModel
 from utils.db import UserDatabase
 from utils.bucket import S3Bucket
 from utils.cache import SessionCache
@@ -15,14 +15,17 @@ app = Flask(__name__)
 USER_SESSION_TTL = 1 * 60 * 60
 USER_SESSION_MODEL_TTL = 24 * 60 * 60
 
-# init global variables
-model = MLEModel()
-user_db = UserDatabase()
-model_class = TrieModel
+# init model/class
+model_kwargs = {'param_path': './models/params/transformer_params.pt'}
+model_class = TransformerModel
+default_model = model_class(**model_kwargs)
+
+# init aws resources
 credentials = extract_aws_credentials()
 user_db = UserDatabase(credentials=credentials)
 s3bucket = S3Bucket(credentials=credentials)
->>>>>>> acf5e10f5a8faf7e8191b287b19d363d70eba40f
+
+# init session cache
 session_cache = SessionCache(app)
 
 # add endpoints

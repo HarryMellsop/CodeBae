@@ -6,5 +6,12 @@ __pycache__
 venv
 env
 
+# model data
+models/transformer/data/datasets
+models/transformer/data/datasets-cleaned
+
+# ckpts
+models/transformer/ckpts
+
 # misc
 .DS_Store

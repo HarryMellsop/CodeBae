@@ -1,0 +1,78 @@
+
+.form-inline {
+    margin-top:20px
+}
+h3{
+    color:whitesmoke;
+}
+h4 {
+    color:whitesmoke;
+}
+
+.textentry {
+    display:inline;
+    margin:0;
+    width:80%;
+}
+
+input:not([type="checkbox"]),
+textarea {
+    display: inline-block;
+    width: calc(94% - 50px);
+    margin:0px;
+    overflow: hidden;
+}
+.train {
+    margin-top:10px;
+    display:block;
+    width:300px;
+    max-width:40%;
+}
+
+.save {
+    display: inline-block;
+    width:50px;
+    margin:0px;
+}
+
+
+hr {
+    border-color: var(--vscode-input-border);
+}
+
+.main {
+    max-width:500px;
+    margin-top: 30px;
+    margin-left: 20px;
+}
+
+.inner {
+    max-width:500px;
+}
+
+.setting {
+    margin-top:30px;
+}
+
+.setting p {
+    margin-top:0px;
+    vertical-align: baseline;
+    
+}
+
+.setting h3, h4 {
+    margin-bottom:5px;
+}
+
+.setting input[type="checkbox"]{
+    display:inline;
+    margin-left:0px;
+    margin-right:10px;
+    width: 14px;
+    height: 14px;
+    vertical-align: baseline;
+}
+
+.checkbox-description {
+    display:inline;
+}
