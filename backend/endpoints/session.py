@@ -7,6 +7,7 @@ from main import user_db
 from main import session_cache
 from main import USER_SESSION_TTL
 
+
 @app.route('/session', methods=['GET'])
 def session():
 

@@ -12,6 +12,7 @@ sys.path.insert(0, './models/transformer')
 # in ./models/transformer
 
 class TransformerModel(BaseModel):
+    finetune_implemented = False
 
     # load the model parameters from the checkpoint path, and initialise the model
     # ready to run inference (should be reasonably small; around 60mb per model).
