@@ -15,8 +15,10 @@ app = Flask(__name__)
 USER_SESSION_TTL = 1 * 60 * 60
 USER_SESSION_MODEL_TTL = 24 * 60 * 60
 
-# init model
+# init model/class
+model_kwargs = {'param_path': './models/params/transformer_params.pt'}
 model_class = TransformerModel
+default_model = model_class(**model_kwargs)
 
 # init aws resources
 credentials = extract_aws_credentials()
