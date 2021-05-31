@@ -5,6 +5,7 @@ import axios from 'axios';
 
 let serverAddr: string = 'http://3.19.227.195:8080';
 let sessionExpireTime = 3600000;
+let completionIcon = "🄲 "
 
 var sessionID: string;
 var sessionTimeout: NodeJS.Timeout;
@@ -107,9 +108,20 @@ function registerPredictor() {
 					});
 				
 				let completionItems : vscode.CompletionItem[] = [];
-				for (var index in predictions) {
-					completionItems.push(new vscode.CompletionItem(predictions[index]));
+				for (var key in predictions) {
+					var prediction = predictions[key];
+					var index = parseInt(key);
+
+					let completionItem = new vscode.CompletionItem(completionIcon + prediction);
+
+					completionItem.sortText = String.fromCharCode(0) + String.fromCharCode(index);
+					completionItem.detail = "CodeBae";
+					completionItem.insertText = prediction;
+					completionItem.filterText = prediction;
+					completionItem.preselect = index === 0;
+					completionItems.push(completionItem);
 				}
+
 				return completionItems;
 			}
 		}
