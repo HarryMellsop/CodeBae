@@ -81,9 +81,10 @@ class TransformerModel(BaseModel):
             if EOL_index != -1:
                 full_prediction = full_prediction[:EOL_index]
 
-            full_prediction.replace(self.vocab.MASK_CHAR_1, "")
-            full_prediction.replace(self.vocab.MASK_CHAR_2, "")
-            full_prediction.replace(self.vocab.PAD_CHAR, "")
+            full_prediction = full_prediction.replace(self.vocab.MASK_CHAR_1, "")
+            full_prediction = full_prediction.replace(self.vocab.MASK_CHAR_2, "")
+            full_prediction = full_prediction.replace(self.vocab.PAD_CHAR, "")
+            full_prediction = full_prediction.replace(self.vocab.UNK, "")
 
             predictions.append(prefix + full_prediction)
             
