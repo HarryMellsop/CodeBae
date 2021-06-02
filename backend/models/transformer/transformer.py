@@ -82,12 +82,14 @@ class TransformerModel(BaseModel):
                 full_prediction = full_prediction[:EOL_index]
 
             full_prediction.replace(self.vocab.MASK_CHAR_1, "")
+            full_prediction.replace(self.vocab.MASK_CHAR_2, "")
+            full_prediction.replace(self.vocab.PAD_CHAR, "")
 
             predictions.append(prefix + full_prediction)
             
             # there's probably some other logic that we'll find on how we want to constrain
             # what can be predicted here; we can add that later as and when it occurs
-            
+
         return predictions
 
     def finetune(self, files):
