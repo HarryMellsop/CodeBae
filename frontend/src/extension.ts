@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { URLSearchParams } from 'url';
 import axios from 'axios';
 
-let serverAddr: string = 'http://3.19.227.195:8080';
+let serverAddr: string = 'http://0.0.0.0:8080';
 let sessionExpireTime = 3600000;
 let completionIcon = "🄲 "
 

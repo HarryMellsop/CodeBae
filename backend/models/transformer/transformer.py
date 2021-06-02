@@ -20,12 +20,14 @@ class TransformerModel(BaseModel):
     # user in a session...  Which opens the door for per-user pretraining.
     def __init__(self, param_path):
         super().__init__(name='transformer_model')
-        self.device = 'cpu'
+        self.device = torch.cuda.current_device() if torch.cuda.is_available() else 'cpu'
         self.num_predictions = 3
         self.ckpt = torch.load(param_path, map_location=torch.device(self.device))
         model_config = self.ckpt['model_config']
         self.itos = self.ckpt['itos']
         self.stoi = self.ckpt['stoi']
+
+        self.vocab = BaseVocab()
 
         # build model config
         mconf = GPTConfig(
@@ -79,12 +81,14 @@ class TransformerModel(BaseModel):
             if EOL_index != -1:
                 full_prediction = full_prediction[:EOL_index]
 
+            full_prediction.replace(self.vocab.MASK_CHAR_1, "")
+
             predictions.append(prefix + full_prediction)
             
             # there's probably some other logic that we'll find on how we want to constrain
             # what can be predicted here; we can add that later as and when it occurs
-
-        return [predictions]
+            
+        return predictions
 
     def finetune(self, files):
         raise NotImplemented
