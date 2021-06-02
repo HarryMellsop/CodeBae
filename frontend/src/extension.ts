@@ -3,9 +3,9 @@ import * as vscode from 'vscode';
 import { URLSearchParams } from 'url';
 import axios from 'axios';
 
-let serverAddr: string = 'http://0.0.0.0:8080';
+let serverAddr: string = 'http://0.0.0.0:8000';
 let sessionExpireTime = 3600000;
-let completionIcon = "🄲 "
+let completionIcon = "🄲 ";
 
 var sessionID: string;
 var sessionTimeout: NodeJS.Timeout;
@@ -108,12 +108,16 @@ function registerPredictor() {
 					});
 				
 				let completionItems : vscode.CompletionItem[] = [];
+
 				for (var key in predictions) {
 					var prediction = predictions[key];
 					var index = parseInt(key);
 
-					let completionItem = new vscode.CompletionItem(completionIcon + prediction);
+					if (isNaN(index)) {
+						continue;
+					}
 
+					let completionItem = new vscode.CompletionItem(completionIcon + prediction);
 					completionItem.sortText = String.fromCharCode(0) + String.fromCharCode(index);
 					completionItem.detail = "CodeBae";
 					completionItem.insertText = prediction;
