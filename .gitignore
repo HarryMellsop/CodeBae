@@ -1,5 +1,6 @@
 .DS_Store
-
+.aws
+.aws/*
 npm-debug.log
 Thumbs.db
 
