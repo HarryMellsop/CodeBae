@@ -1,12 +1,12 @@
 ![CodeBae Logo](https://i.imgur.com/IvPQXGI.png)
 
 ## Startup Team Assignment
-https://github.com/StanfordCS194/Team11/wiki/Team-Home-Page/
+https://github.com/HarryMellsop/CodeBae/wiki
 
 ## Key Documentation
 
 ### Backend Documentation Entry Point
-https://github.com/StanfordCS194/Team11/wiki/Backend-Documentation
+https://github.com/HarryMellsop/CodeBae/wiki/Backend-Documentation
 
 ### Frontend Documentation Entry Point
-https://github.com/StanfordCS194/Team11/wiki/Frontend-Documentation
+https://github.com/HarryMellsop/CodeBae/wiki/Frontend-Documentation
