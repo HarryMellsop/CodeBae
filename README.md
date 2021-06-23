@@ -13,4 +13,4 @@ https://github.com/HarryMellsop/CodeBae/wiki/Frontend-Documentation
 
 ### Gotchas
 
-To actually deploy this, you'll need to set up an AWS account with relevant S3 and DynamoDB resources.  You'll then need to populate /backend/.aws folder with two files - config, which will contain your internal S3 bucket name, and credentials, which will contain your AWS access key.
+To actually deploy this, you'll need to set up an AWS account with relevant S3 and DynamoDB resources.  You'll then need to populate /backend/.aws folder with two files - config, which will contain your internal S3 bucket name, and credentials, which will contain your AWS access key.  These two datastore services are required for caching user training data and parameters.
